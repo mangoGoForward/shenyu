@@ -18,6 +18,7 @@
 package org.apache.shenyu.examples.alibaba.dubbo.service.impl;
 
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
+import org.apache.shenyu.client.dubbo.common.annotation.ShenyuService;
 import org.apache.shenyu.examples.dubbo.api.entity.ComplexBeanTest;
 import org.apache.shenyu.examples.dubbo.api.entity.DubboTest;
 import org.apache.shenyu.examples.dubbo.api.service.DubboClassMultiParamService;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * The type Dubbo multi param service.
  */
-@Service("dubboClassMultiParamService")
+@ShenyuService(serviceName = "dubboClassMultiParamService")
 @ShenyuDubboClient("/demo")
 public class DubboClassMultiParamServiceImpl implements DubboClassMultiParamService {
     

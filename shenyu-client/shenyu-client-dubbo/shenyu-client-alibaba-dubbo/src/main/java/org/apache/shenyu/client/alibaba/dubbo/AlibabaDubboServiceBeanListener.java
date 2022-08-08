@@ -24,6 +24,7 @@ import org.apache.shenyu.client.core.constant.ShenyuClientConstants;
 import org.apache.shenyu.client.core.disruptor.ShenyuClientRegisterEventPublisher;
 import org.apache.shenyu.client.core.exception.ShenyuClientIllegalArgumentException;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
+import org.apache.shenyu.client.dubbo.common.annotation.ShenyuService;
 import org.apache.shenyu.client.dubbo.common.dto.DubboRpcExt;
 import org.apache.shenyu.common.enums.RpcTypeEnum;
 import org.apache.shenyu.common.utils.GsonUtils;
@@ -105,12 +106,14 @@ public class AlibabaDubboServiceBeanListener implements ApplicationListener<Cont
         if (AopUtils.isAopProxy(refProxy)) {
             clazz = AopUtils.getTargetClass(refProxy);
         }
+
+        String serviceName = clazz.getAnnotation(ShenyuService.class).serviceName();
         ShenyuDubboClient beanShenyuClient = AnnotatedElementUtils.findMergedAnnotation(clazz, ShenyuDubboClient.class);
         final String superPath = buildApiSuperPath(beanShenyuClient);
         if (superPath.contains("*") && Objects.nonNull(beanShenyuClient)) {
             Method[] methods = ReflectionUtils.getDeclaredMethods(clazz);
             for (Method method : methods) {
-                publisher.publishEvent(buildMetaDataDTO(serviceBean, beanShenyuClient, method, superPath));
+                publisher.publishEvent(buildMetaDataDTO(serviceBean, beanShenyuClient, method, superPath, serviceName));
             }
             return;
         }
@@ -118,7 +121,7 @@ public class AlibabaDubboServiceBeanListener implements ApplicationListener<Cont
         for (Method method : methods) {
             ShenyuDubboClient shenyuDubboClient = AnnotatedElementUtils.findMergedAnnotation(method, ShenyuDubboClient.class);
             if (Objects.nonNull(shenyuDubboClient)) {
-                publisher.publishEvent(buildMetaDataDTO(serviceBean, shenyuDubboClient, method, superPath));
+                publisher.publishEvent(buildMetaDataDTO(serviceBean, shenyuDubboClient, method, superPath, serviceName));
             }
         }
     }
@@ -141,10 +144,9 @@ public class AlibabaDubboServiceBeanListener implements ApplicationListener<Cont
         return result.toString();
     }
 
-    private MetaDataRegisterDTO buildMetaDataDTO(final ServiceBean<?> serviceBean, final ShenyuDubboClient shenyuDubboClient, final Method method, final String superPath) {
+    private MetaDataRegisterDTO buildMetaDataDTO(final ServiceBean<?> serviceBean, final ShenyuDubboClient shenyuDubboClient, final Method method, final String superPath, final String serviceName) {
         String path = superPath.contains("*") ? pathJoin(contextPath, superPath.replace("*", ""), method.getName()) : pathJoin(contextPath, superPath, shenyuDubboClient.path());
         String desc = shenyuDubboClient.desc();
-        String serviceName = serviceBean.getInterface();
         String configRuleName = shenyuDubboClient.ruleName();
         String ruleName = ("".equals(configRuleName)) ? path : configRuleName;
         String methodName = method.getName();

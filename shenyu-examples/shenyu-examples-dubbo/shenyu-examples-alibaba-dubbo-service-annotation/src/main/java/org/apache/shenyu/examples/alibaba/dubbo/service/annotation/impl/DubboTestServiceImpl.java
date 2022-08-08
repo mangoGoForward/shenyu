@@ -18,6 +18,7 @@ package org.apache.shenyu.examples.alibaba.dubbo.service.annotation.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import org.apache.shenyu.client.dubbo.common.annotation.ShenyuDubboClient;
+import org.apache.shenyu.client.dubbo.common.annotation.ShenyuService;
 import org.apache.shenyu.examples.common.aop.Log;
 import org.apache.shenyu.examples.dubbo.api.entity.DubboTest;
 import org.apache.shenyu.examples.dubbo.api.entity.ListResp;
@@ -29,7 +30,7 @@ import java.util.Random;
 /**
  * The type Dubbo service.
  */
-@Service
+@ShenyuService(serviceName = "ShenyuExampleApp.ShenyuExampleServer.AlibabaDubbo.Test")
 public class DubboTestServiceImpl implements DubboTestService {
     
     @Override
